@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
@@ -12,9 +7,10 @@ pool:
 variables:
   SONAR_PROJECT_KEY: 'check-test'
   SONAR_HOST_URL: 'https://asisupgradeapi.changepond.com:8443'
-  SONAR_TOKEN: 'sqa_b3ebec73aeb1b903680ebd1a7e958c0e15c188a0'  # Store this in ADO library as a secret
+  SonarToken: 'sqa_b3ebec73aeb1b903680ebd1a7e958c0e15c188a0'
 
 steps:
+
 - task: NodeTool@0
   inputs:
     versionSpec: '18.x'
@@ -25,16 +21,20 @@ steps:
   displayName: 'Install dependencies'
 
 - task: SonarQubePrepare@5
+  env:
+    NODE_TLS_REJECT_UNAUTHORIZED: '0'  # Use this only if you're dealing with a self-signed cert
   inputs:
-    SonarQube: 'Sonarqube'  # Service connection in ADO
+    SonarQube: 'Sonarqube'  # Configure this service connection in ADO
     scannerMode: 'CLI'
     configMode: 'manual'
     cliProjectKey: '$(SONAR_PROJECT_KEY)'
-    cliSources: 'src'
+    cliProjectName: 'check-test'
+    cliSources: '.'
     extraProperties: |
+      sonar.host.url=$(SONAR_HOST_URL)
+      sonar.login=$(SonarToken)  # Pass from secret variable
       sonar.javascript.lcov.reportPaths=coverage/lcov.info
-      sonar.exclusions=node_modules/**
-  displayName: 'Prepare SonarQube Analysis'
+      sonar.exclusions=node_modules/**,**/*.test.js
 
 - script: |
     npm run build
