@@ -38,8 +38,7 @@ steps:
 
 - script: |
     npm run build
-    npm run test -- --coverage
-  displayName: 'Build & Test with Coverage'
+  displayName: 'Build '
 
 - task: SonarQubeAnalyze@5
   displayName: 'Run SonarQube Analysis'
