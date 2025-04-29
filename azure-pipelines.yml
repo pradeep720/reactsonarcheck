@@ -10,9 +10,9 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  SONAR_PROJECT_KEY: 'your-react-app'
-  SONAR_HOST_URL: 'https://your-sonarqube-server-url'
-  SONAR_TOKEN: '$(SonarToken)'  # Store this in ADO library as a secret
+  SONAR_PROJECT_KEY: 'check-test'
+  SONAR_HOST_URL: 'https://asisupgradeapi.changepond.com:8443'
+  SONAR_TOKEN: 'sqa_b3ebec73aeb1b903680ebd1a7e958c0e15c188a0'  # Store this in ADO library as a secret
 
 steps:
 - task: NodeTool@0
@@ -26,7 +26,7 @@ steps:
 
 - task: SonarQubePrepare@5
   inputs:
-    SonarQube: 'YourSonarServiceConnection'  # Service connection in ADO
+    SonarQube: 'Sonarqube'  # Service connection in ADO
     scannerMode: 'CLI'
     configMode: 'manual'
     cliProjectKey: '$(SONAR_PROJECT_KEY)'
