@@ -1,0 +1,50 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  SONAR_PROJECT_KEY: 'your-react-app'
+  SONAR_HOST_URL: 'https://your-sonarqube-server-url'
+  SONAR_TOKEN: '$(SonarToken)'  # Store this in ADO library as a secret
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '18.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install
+  displayName: 'Install dependencies'
+
+- task: SonarQubePrepare@5
+  inputs:
+    SonarQube: 'YourSonarServiceConnection'  # Service connection in ADO
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: '$(SONAR_PROJECT_KEY)'
+    cliSources: 'src'
+    extraProperties: |
+      sonar.javascript.lcov.reportPaths=coverage/lcov.info
+      sonar.exclusions=node_modules/**
+  displayName: 'Prepare SonarQube Analysis'
+
+- script: |
+    npm run build
+    npm run test -- --coverage
+  displayName: 'Build & Test with Coverage'
+
+- task: SonarQubeAnalyze@5
+  displayName: 'Run SonarQube Analysis'
+
+- task: SonarQubePublish@5
+  inputs:
+    pollingTimeoutSec: '300'
+  displayName: 'Publish SonarQube Results'
